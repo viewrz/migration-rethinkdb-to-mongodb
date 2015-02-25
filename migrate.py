@@ -23,9 +23,8 @@ def old_to_new_boxes(old_boxes,new_id):
         boxes.append(old_to_new_box(old_boxes[i],new_id,i))
     return boxes
 
-def old_to_new_id(oldId, date):
-    import hashlib
-    return str(date)+hashlib.md5(oldId).hexdigest()[:11]
+
+
 
 def old_story_to_tags(story):
     tags = [story["shortlist"]]
@@ -42,13 +41,13 @@ def old_story_to_source(story):
         source['duration'] = int(story['duration']*1000.0)
     return source
 
+from datetime import datetime
 def mstimestamp_to_date(mstimestamp):
-    from datetime import datetime
     return datetime.fromtimestamp(mstimestamp/1000).replace(microsecond = (mstimestamp % 1000) * 1000)
 
 def old_to_new_result(story):
     from bson import ObjectId
-    new_id = old_to_new_id(story['id'],story['date'])
+    new_id = old_story_to_new_id(story)
     return {
        'boxes' : old_to_new_boxes(story['boxes'],new_id),
        'creationDate' : mstimestamp_to_date(story['date']),

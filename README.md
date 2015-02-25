@@ -2,8 +2,6 @@
 Internal tool to migrate data from our rethinkdb base to our mongodb database
 
 # Commands
-## Install dependencies
-    ansible-playbook --sudo -i "localhost," -c local dependencies.yml -K 
 ## Run script in docker
     docker build -t "siz-migration-rethinkdb-to-mongodb" .
     docker run --rm --link siz-api-rethinkdb:rethinkdb --link siz-api-mongo:mongo -v $(pwd):/opt/migration-rethinkdb-to-mongodb siz-migration-rethinkdb-to-mongodb
