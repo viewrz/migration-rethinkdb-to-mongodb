@@ -1,8 +1,0 @@
-- hosts: all
-  tasks:
-    - name: Install python dependencies
-      pip: name={{item}}
-      with_items:
-        - moviepy
-        - pymongo
-        - rethinkdb==1.12.0-2
