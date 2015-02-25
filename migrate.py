@@ -13,7 +13,7 @@ def old_to_new_box(old_box,new_id,nb):
        'width' : old_box['width'],
        'formats' : [
            {'type': 'mp4','href': '//fun.siz.io/stories/'+new_id+'/'+str(nb)+'.mp4'},
-           {'type': 'gif','href': '//fun.siz.io/stories/'+new_id+'/'+str(nb)+'.gif'},
+           {'type': 'gif','href': '//fun.siz.io/stories/'+new_id+'/'+str(nb)+'.gif'}
        ]
     }
 
