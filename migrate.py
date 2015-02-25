@@ -5,13 +5,7 @@ RETHINKDB_DB="siz"
 MONGO_HOST="mongo"
 MONGO_DB="siz"
 
-def retrieve_old_stories(host, db):
-    import rethinkdb as r
-    connection = r.connect(host, 28015)
-    db = r.db(db)
-
-    old_stories = db.table('video').has_fields('boxes').order_by(r.desc('date')).eq_join('shortlist',db.table('shortlist')).pluck({ "left": True, "right" : { "category": True }}).zip().run(connection)
-    return old_stories
+from common import *
 
 def old_to_new_box(old_box,new_id,nb):
     return {
@@ -65,14 +59,6 @@ def old_to_new_result(story):
        'title' : story['title'],
        'tags' : old_story_to_tags(story)
     }
-
-
-def save_new_stories(stories,host,db):
-    from pymongo import MongoClient
-    client = MongoClient(host, 27017)
-    db = client[db]
-    collection = db['stories']
-    collection.insert(stories)
 
 old_stories = retrieve_old_stories(RETHINKDB_HOST,RETHINKDB_DB)
 new_stories = map(old_to_new_result,old_stories)
