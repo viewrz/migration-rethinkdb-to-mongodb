@@ -1,35 +1,33 @@
-#/usr/bin/env python
+#!/usr/bin/env python
 
-from moviepy.editor import VideoFileClip
-
-GIF_COLORS=256
-GIF_FPS=6
 RETHINKDB_HOST="rethinkdb"
 RETHINKDB_DB="siz"
 MONGO_HOST="mongo"
 MONGO_DB="siz"
 
-def convert_mp4_to_gif(mp4_in,gif_out):
-    clip = (VideoFileClip(mp4_in))
-    clip.write_gif(gif_out, colors=GIF_COLORS, fps=GIF_FPS)
-
-def retrieve_old_stories():
+def retrieve_old_stories(host, db):
     import rethinkdb as r
-    connection = r.connect(RETHINKDB_HOST, 28015)
-    db = r.db(RETHINKDB_DB)
+    connection = r.connect(host, 28015)
+    db = r.db(db)
 
     old_stories = db.table('video').has_fields('boxes').order_by(r.desc('date')).eq_join('shortlist',db.table('shortlist')).pluck({ "left": True, "right" : { "category": True }}).zip().run(connection)
     return old_stories
 
-def old_to_new_box(old_box):
+def old_to_new_box(old_box,new_id,nb):
     return {
        'height' : old_box['height'],
        'width' : old_box['width'],
-       'formats' : [{'type': 'mp4','href': old_box['url']}]
+       'formats' : [
+           {'type': 'mp4','href': '//fun.siz.io/stories/'+new_id+'/'+str(nb)+'.mp4'},
+           {'type': 'gif','href': '//fun.siz.io/stories/'+new_id+'/'+str(nb)+'.gif'},
+       ]
     }
 
-def old_to_new_boxes(old_boxes):
-    return map(old_to_new_box,old_boxes)
+def old_to_new_boxes(old_boxes,new_id):
+    boxes = []
+    for i in range(len(old_boxes)):
+        boxes.append(old_to_new_box(old_boxes[i],new_id,i))
+    return boxes
 
 def old_to_new_id(oldId, date):
     import hashlib
@@ -56,10 +54,11 @@ def mstimestamp_to_date(mstimestamp):
 
 def old_to_new_result(story):
     from bson import ObjectId
+    new_id = old_to_new_id(story['id'],story['date'])
     return {
-       'boxes' : old_to_new_boxes(story['boxes']),
+       'boxes' : old_to_new_boxes(story['boxes'],new_id),
        'creationDate' : mstimestamp_to_date(story['date']),
-       'id' : ObjectId(old_to_new_id(story['id'],story['date'])),
+       '_id' : ObjectId(new_id),
        'slug' : story['id'],
        'source' : old_story_to_source(story),
        'picture' : { 'href': story['pictureUrl'] },
@@ -68,14 +67,14 @@ def old_to_new_result(story):
     }
 
 
-def save_new_stories(stories):
+def save_new_stories(stories,host,db):
     from pymongo import MongoClient
-    client = MongoClient(MONGO_HOST, 27017)
-    db = client[MONGO_DB]
+    client = MongoClient(host, 27017)
+    db = client[db]
     collection = db['stories']
     collection.insert(stories)
 
-old_stories = retrieve_old_stories()
+old_stories = retrieve_old_stories(RETHINKDB_HOST,RETHINKDB_DB)
 new_stories = map(old_to_new_result,old_stories)
 
-save_new_stories(new_stories)
+save_new_stories(new_stories,MONGO_HOST,MONGO_DB)
