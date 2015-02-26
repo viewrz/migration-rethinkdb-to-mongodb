@@ -12,17 +12,10 @@ def retrieve_old_stories(host, db):
     return old_stories
 
 from pymongo import MongoClient,errors
-def save_new_stories(stories,host,db):
+def get_collection(host,db):
     client = MongoClient(host, 27017)
     db = client[db]
-    collection = db['stories']
-    for storie in stories:
-      print 'Insert %s :' % storie['slug'],
-      try:
-          collection.insert(storie)
-          print 'ok'
-      except errors.DuplicateKeyError:
-          print 'duplicated'
+    return db['stories']
 
 import hashlib
 def old_story_to_new_id(story):

@@ -1,9 +1,15 @@
 #!/usr/bin/env python
 
-RETHINKDB_HOST="rethinkdb"
-RETHINKDB_DB="siz"
-MONGO_HOST="mongo"
-MONGO_DB="siz"
+import os
+
+RETHINKDB_HOST=os.getenv('RETHINKDB_HOST',"rethinkdb")
+RETHINKDB_DB=os.getenv('RETHINKDB_DB',"siz")
+MONGO_HOST=os.getenv('MONGO_HOST',"mongo")
+MONGO_DB=os.getenv('MONGO_DB',"siz")
+INPUT_S3_BUCKET=os.getenv('INPUT_S3_BUCKET',"static.siz.io")
+OUPUT_S3_BUCKET=os.getenv('OUPUT_S3_BUCKET',"fun.siz.io")
+STOP_ON_DUPLICATED=(os.getenv('STOP_ON_DUPLICATED',"False")=="True")
+DRY_MODE=(os.getenv('DRY_MODE',"False")=="True")
 
 from common import *
 
@@ -57,4 +63,49 @@ def old_to_new_result(story):
 old_stories = retrieve_old_stories(RETHINKDB_HOST,RETHINKDB_DB)
 new_stories = map(old_to_new_result,old_stories)
 
-save_new_stories(new_stories,MONGO_HOST,MONGO_DB)
+import tempfile
+tmp_dir = tempfile.mkdtemp()
+print 'Tmp working dir : %s' % tmp_dir
+
+
+ssl_patch_for_boto()
+s3_conn = boto.connect_s3()
+input_bucket = s3_conn.get_bucket(INPUT_S3_BUCKET)
+output_bucket = s3_conn.get_bucket(OUPUT_S3_BUCKET)
+collection = get_collection(MONGO_HOST,MONGO_DB)
+
+for i in range(len(new_stories)):
+  story = new_stories[i]
+  old_story = old_stories[i]
+  print '=== %s ===' % story['slug']
+  try:
+     mongo_story = collection.find_one(story['_id'])
+     if mongo_story != None:
+        print "already in database"
+        if STOP_ON_DUPLICATED:
+           break
+        else:
+           continue
+     print "convert mp4 to gif"
+     if DRY_MODE:
+        continue
+        
+     videos_to_convert = old_stories_to_videos([old_story],tmp_dir)
+     for video in videos_to_convert:
+        convert_and_upload_video(video,input_bucket,output_bucket)
+
+     print 'Insert in mongod %s / %s :' % (story['slug'],story['_id']),
+  
+     collection.insert(story)
+     print 'ok'
+  except errors.DuplicateKeyError:
+     print 'duplicated in mongo'
+     if STOP_ON_DUPLICATED:
+        break
+  except KeyboardInterrupt:
+     break
+  except:
+     print 'error'
+
+import shutil
+shutil.rmtree(tmp_dir)
