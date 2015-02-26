@@ -41,7 +41,7 @@ def old_stories_to_videos(stories,work_dir):
             box = story['boxes'][i]
             videos.append(
                 {
-                    'local_prefix_filename' : work_dir+old_story_to_new_id(story)+'_'+str(i),
+                    'local_prefix_filename' : work_dir+"/"+old_story_to_new_id(story)+'_'+str(i),
                     'mp4_key' : urlparse(box['url']).path[1:], 
                     'output_prefix_key' : 'stories/'+old_story_to_new_id(story)+'/'+str(i)
                 })
@@ -77,6 +77,7 @@ def upload_file_to_s3(bucket,key,local_file):
     s3_key.key = key
     print 'Upload %s to  %s/%s :' % (local_file, bucket.name, key), 
     s3_key.set_contents_from_filename(local_file)
+    s3_key.make_public()
     print 'ok'
 
 def convert_and_upload_video(video,input_bucket,output_bucket):

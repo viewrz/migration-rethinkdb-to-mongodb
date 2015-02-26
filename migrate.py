@@ -24,8 +24,6 @@ def old_to_new_boxes(old_boxes,new_id):
     return boxes
 
 
-
-
 def old_story_to_tags(story):
     tags = [story["shortlist"]]
     if "category" in story:
