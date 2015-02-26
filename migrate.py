@@ -41,16 +41,13 @@ def old_story_to_source(story):
         source['duration'] = int(story['duration']*1000.0)
     return source
 
-from datetime import datetime
-def mstimestamp_to_date(mstimestamp):
-    return datetime.fromtimestamp(mstimestamp/1000).replace(microsecond = (mstimestamp % 1000) * 1000)
 
 def old_to_new_result(story):
     from bson import ObjectId
     new_id = old_story_to_new_id(story)
     return {
        'boxes' : old_to_new_boxes(story['boxes'],new_id),
-       'creationDate' : mstimestamp_to_date(story['date']),
+       'creationDate' : int(story['date']),
        '_id' : ObjectId(new_id),
        'slug' : story['id'],
        'source' : old_story_to_source(story),
