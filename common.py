@@ -12,9 +12,11 @@ def retrieve_old_stories(host, db):
     return old_stories
 
 from pymongo import MongoClient,errors
-def get_collection(host,db):
+def get_collection(host,db,auth,user,password):
     client = MongoClient(host, 27017)
     db = client[db]
+    if auth:
+       db.authenticate(user,password)
     return db['stories']
 
 import hashlib

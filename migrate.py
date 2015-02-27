@@ -6,6 +6,9 @@ RETHINKDB_HOST=os.getenv('RETHINKDB_HOST',"rethinkdb")
 RETHINKDB_DB=os.getenv('RETHINKDB_DB',"siz")
 MONGO_HOST=os.getenv('MONGO_HOST',"mongo")
 MONGO_DB=os.getenv('MONGO_DB',"siz")
+MONGO_AUTH=(os.getenv('MONGO_AUTH',"False")=="True")
+MONGO_USER=os.getenv('MONGO_USER',"siz-migration-job")
+MONGO_PASSWORD=os.getenv('MONGO_PASSWORD',"password")
 INPUT_S3_BUCKET=os.getenv('INPUT_S3_BUCKET',"static.siz.io")
 OUPUT_S3_BUCKET=os.getenv('OUPUT_S3_BUCKET',"fun.siz.io")
 STOP_ON_DUPLICATED=(os.getenv('STOP_ON_DUPLICATED',"False")=="True")
@@ -75,7 +78,7 @@ ssl_patch_for_boto()
 s3_conn = boto.connect_s3()
 input_bucket = s3_conn.get_bucket(INPUT_S3_BUCKET)
 output_bucket = s3_conn.get_bucket(OUPUT_S3_BUCKET)
-collection = get_collection(MONGO_HOST,MONGO_DB)
+collection = get_collection(MONGO_HOST,MONGO_DB,MONGO_AUTH,MONGO_USER,MONGO_PASSWORD)
 
 for i in range(len(new_stories)):
   story = new_stories[i]
