@@ -13,8 +13,7 @@ INPUT_S3_BUCKET=os.getenv('INPUT_S3_BUCKET',"static.siz.io")
 OUPUT_S3_BUCKET=os.getenv('OUPUT_S3_BUCKET',"fun.siz.io")
 STOP_ON_DUPLICATED=(os.getenv('STOP_ON_DUPLICATED',"False")=="True")
 DRY_MODE=(os.getenv('DRY_MODE',"False")=="True")
-CONVERT_VIDEO=(os.getenv('DRY_MODE',"True")=="True")
-
+CONVERT_VIDEO=(os.getenv('CONVERT_VIDEO',"True")=="True")
 
 
 from common import *
