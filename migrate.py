@@ -10,6 +10,9 @@ INPUT_S3_BUCKET=os.getenv('INPUT_S3_BUCKET',"static.siz.io")
 OUPUT_S3_BUCKET=os.getenv('OUPUT_S3_BUCKET',"fun.siz.io")
 STOP_ON_DUPLICATED=(os.getenv('STOP_ON_DUPLICATED',"False")=="True")
 DRY_MODE=(os.getenv('DRY_MODE',"False")=="True")
+CONVERT_VIDEO=(os.getenv('DRY_MODE',"True")=="True")
+
+
 
 from common import *
 
@@ -89,10 +92,10 @@ for i in range(len(new_stories)):
      print "convert mp4 to gif"
      if DRY_MODE:
         continue
-        
-     videos_to_convert = old_stories_to_videos([old_story],tmp_dir)
-     for video in videos_to_convert:
-        convert_and_upload_video(video,input_bucket,output_bucket)
+     if CONVERT_VIDEO:
+         videos_to_convert = old_stories_to_videos([old_story],tmp_dir)
+         for video in videos_to_convert:
+            convert_and_upload_video(video,input_bucket,output_bucket)
 
      print 'Insert in mongod %s / %s :' % (story['slug'],story['_id']),
   
