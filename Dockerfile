@@ -6,6 +6,6 @@ RUN pip install rethinkdb==1.12.0.post2
 RUN pip install boto
 RUN mkdir /opt/migration-rethinkdb-to-mongodb
 
-COPY *.py /opt/migration-rethinkdb-to-mongodb
+COPY *.py /opt/migration-rethinkdb-to-mongodb/
 
 CMD /opt/migration-rethinkdb-to-mongodb/migrate.py
