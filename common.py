@@ -67,6 +67,10 @@ def retrieve_file_from_s3(bucket,key,local_file):
         print 'failed'
         return False
 
+def file_exist_on_s3(bucket,key):
+    return None != bucket.get_key(key)
+
+
 def upload_file_to_s3(bucket,key,local_file):
     s3_key = boto.s3.key.Key(bucket)
     s3_key.key = key
@@ -81,9 +85,12 @@ def convert_and_upload_video(video,input_bucket,output_bucket):
     mp4_s3_key = "%s.mp4" % video['output_prefix_key']
     gif_s3_key = "%s.gif" % video['output_prefix_key']
 
-    if retrieve_file_from_s3(input_bucket,video['mp4_key'],mp4_file_path):
-        convert_mp4_to_gif(mp4_file_path,gif_file_path)
+    if (not file_exist_on_s3(output_bucket,mp4_s3_key)) and retrieve_file_from_s3(input_bucket,video['mp4_key'],mp4_file_path):
         upload_file_to_s3(output_bucket,mp4_s3_key,mp4_file_path)
-        upload_file_to_s3(output_bucket,gif_s3_key,gif_file_path)
+
+        if not file_exist_on_s3(output_bucket,gif_s3_key):
+            convert_mp4_to_gif(mp4_file_path,gif_file_path)
+            upload_file_to_s3(output_bucket,gif_s3_key,gif_file_path)
+            os.remove(gif_file_path)
+
         os.remove(mp4_file_path)
-        os.remove(gif_file_path)

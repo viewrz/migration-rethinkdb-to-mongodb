@@ -11,7 +11,7 @@ MONGO_USER=os.getenv('MONGO_USER',"siz-migration-job")
 MONGO_PASSWORD=os.getenv('MONGO_PASSWORD',"password")
 INPUT_S3_BUCKET=os.getenv('INPUT_S3_BUCKET',"static.siz.io")
 OUPUT_S3_BUCKET=os.getenv('OUPUT_S3_BUCKET',"fun.siz.io")
-STOP_ON_DUPLICATED=(os.getenv('STOP_ON_DUPLICATED',"False")=="True")
+ON_DUPLICATED=os.getenv('ON_DUPLICATED',"Continue") # Continue, Skip or Stop
 DRY_MODE=(os.getenv('DRY_MODE',"False")=="True")
 CONVERT_VIDEO=(os.getenv('CONVERT_VIDEO',"True")=="True")
 
@@ -87,9 +87,9 @@ for i in range(len(new_stories)):
      mongo_story = collection.find_one(story['_id'])
      if mongo_story != None:
         print "already in database"
-        if STOP_ON_DUPLICATED:
+        if "Stop" == ON_DUPLICATED:
            break
-        else:
+        elif "Skip" == ON_DUPLICATED:
            continue
      print "convert mp4 to gif"
      if DRY_MODE:
@@ -105,7 +105,7 @@ for i in range(len(new_stories)):
      print 'ok'
   except errors.DuplicateKeyError:
      print 'duplicated in mongo'
-     if STOP_ON_DUPLICATED:
+     if "Stop" == ON_DUPLICATED:
         break
   except KeyboardInterrupt:
      break
