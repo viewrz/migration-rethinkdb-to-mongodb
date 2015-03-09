@@ -16,4 +16,4 @@ Internal tool to migrate data from our rethinkdb base to our mongodb database
 
 # Preprod commands
 ## Launch migration job
-    docker run -e RETHINKDB_HOST=rethinkdb --link mongo:mongo sizio/migration-rethinkdb-to-mongodb
+    docker run -e AWS_ACCESS_KEY_ID=AAAAAAAAAAAAAAAAAAAAAA -e AWS_SECRET_ACCESS_KEY=uUGIUhiuHUIHiuhIUhIUHIUhIUhiuhIUhIUhIUHu -e RETHINKDB_HOST=rethinkdb --link mongo:mongo sizio/migration-rethinkdb-to-mongodb
