@@ -94,3 +94,5 @@ def convert_and_upload_video(video,input_bucket,output_bucket):
             os.remove(gif_file_path)
 
         os.remove(mp4_file_path)
+    else:
+        print "%s/%s already exist" % (output_bucket.name,mp4_s3_key)
