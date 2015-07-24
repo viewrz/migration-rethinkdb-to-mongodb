@@ -62,7 +62,8 @@ def old_to_new_result(story):
        'source' : old_story_to_source(story),
        'picture' : { 'href': story['pictureUrl'] },
        'title' : story['title'],
-       'tags' : old_story_to_tags(story)
+       'tags' : old_story_to_tags(story),
+       'privacy' : 'Public'
     }
 
 old_stories = retrieve_old_stories(RETHINKDB_HOST,RETHINKDB_DB)
